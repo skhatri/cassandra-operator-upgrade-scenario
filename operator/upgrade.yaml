@@ -1,0 +1,5 @@
+image:
+  repository: datastax/cass-operator
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.5.0-ubi"

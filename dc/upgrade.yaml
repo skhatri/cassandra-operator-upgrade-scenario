@@ -1,0 +1,4 @@
+image:
+  repository: datastax/dse-server
+  pullPolicy: IfNotPresent
+  tag: "6.8.9-ubi7"

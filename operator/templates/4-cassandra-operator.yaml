@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "operator.fullname" . }}
+  labels:
+    {{- include "operator.labels" . | nindent 4 }}
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  namespace: {{ .Values.namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      {{- include "operator.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "operator.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: OPERATOR_NAME
+          value: cass-operator
+        - name: SKIP_VALIDATING_WEBHOOK
+          value: "FALSE"
+        - name: BASE_IMAGE_OS
+          value: busybox:latest
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - .*operator
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: {{ .Chart.Name }}
+        readinessProbe:
+          exec:
+            command:
+            - stat
+            - /tmp/operator-sdk-ready
+          failureThreshold: 1
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 65534
+          runAsUser: 65534
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cass-operator-certs-volume
+        - mountPath: /tmp/
+          name: tmpconfig-volume
+        - mountPath: /var/lib/cass-operator/base_os
+          name: cass-operator-configmap
+          subPath: base_os
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: cass-operator
+      serviceAccountName: cass-operator
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: tmpconfig-volume
+      - name: cass-operator-certs-volume
+        secret:
+          defaultMode: 420
+          secretName: cass-operator-webhook-config
+      - configMap:
+          defaultMode: 420
+          name: cass-operator
+        name: cass-operator-configmap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cass-operator
+  labels:
+    {{- include "operator.labels" . | nindent 4 }}
+data:
+  base_os: busybox:latest
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cass-operator-webhook-config
+  labels:
+    {{- include "operator.labels" . | nindent 4 }}
+data:
+  tls.crt: ""
+  tls.key: ""
