@@ -5,9 +5,9 @@
 replicaCount: 1
 
 image:
-  repository: datastax/dse-server
+  repository: skhatri/datastax-dse-server-ro
   pullPolicy: IfNotPresent
-  tag: "6.8.9-ubi7"
+  tag: "6.8.9-ubi7-b4"
 
 configBuilder:
   repository: datastax/cass-config-builder
@@ -16,3 +16,6 @@ configBuilder:
 storage:
   storageClassName: standard
   size: 2Gi
+
+
+  

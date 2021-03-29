@@ -25,6 +25,47 @@ spec:
     jvm-server-options:
       initial_heap_size: "800M"
       max_heap_size: "800M"
+  
+  podTemplateSpec:
+    spec:
+      containers: 
+        - name: cassandra
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+          env:
+            - name: USE_MGMT_API
+              value: "true"
+            - name: ENVIRONMENT_NAME
+              value: test
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            - name: spark-conf
+              mountPath: /opt/dse/resources/spark/conf
+            - name: dse-bin
+              mountPath: /opt/dse/bin
+            - name: collectd-conf
+              mountPath: /opt/dse/resources/dse/collectd
+            - name: dse-conf
+              mountPath: /opt/dse/resources/dse/conf
+            - name: cassandra-conf
+              mountPath: /opt/dse/resources/cassandra/conf
+      volumes:
+        - name: cassandra-conf
+          emptyDir: {}
+        - name: tmp-dir
+          emptyDir: {}
+        - name: spark-conf
+          emptyDir: {}
+        - name: dse-bin
+          emptyDir: {}
+        - name: collectd-conf
+          emptyDir: {}
+        - name: dse-conf
+          emptyDir: {}
+
 
 
 
