@@ -26,6 +26,11 @@ spec:
       initial_heap_size: "800M"
       max_heap_size: "800M"
   
+    10-write-prom-conf:
+      enabled: true
+      port: 9103
+      staleness-delta: 300
+
   podTemplateSpec:
     spec:
       containers: 
