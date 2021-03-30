@@ -57,6 +57,8 @@ spec:
               mountPath: /opt/dse/resources/dse/conf
             - name: cassandra-conf
               mountPath: /opt/dse/resources/cassandra/conf
+            - name: cqlsh-dir
+              mountPath: /opt/dse/.cassandra
       volumes:
         - name: cassandra-conf
           emptyDir: {}
@@ -70,7 +72,8 @@ spec:
           emptyDir: {}
         - name: dse-conf
           emptyDir: {}
-
+        - name: cqlsh-dir
+          emptyDir: {}
 
 
 

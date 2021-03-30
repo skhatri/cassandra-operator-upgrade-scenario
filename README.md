@@ -29,3 +29,10 @@ Upgrade DC Custom Resource
 ```
 helm upgrade --install dc dc -f dc/values.yaml,dc/minikube.yaml
 ```
+
+### Cleanup
+```
+helm del dc
+helm del operator
+k delete -f operator-role
+```
